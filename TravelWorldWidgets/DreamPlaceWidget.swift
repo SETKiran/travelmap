@@ -48,8 +48,8 @@ struct DreamPlaceWidgetView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             if family != .systemSmall, let place {
-                WorldGlobeView(markers: [GlobeMarker(latitude: place.latitude, longitude: place.longitude, isVisited: false)])
-                    .frame(width: 110, height: 110)
+                WanderWorldView(markers: [GlobeMarker(latitude: place.latitude, longitude: place.longitude, isVisited: false)])
+                    .frame(width: 120, height: 110)
             }
         }
     }

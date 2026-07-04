@@ -105,7 +105,7 @@ struct RecapStoryCard: View {
     private var globeContent: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             Spacer(minLength: 0)
-            WorldGlobeView(markers: card.markers, lineColor: .white.opacity(0.18))
+            WanderWorldView(markers: card.markers)
                 .frame(maxWidth: .infinity)
                 .frame(height: 280)
             Text(card.headline)

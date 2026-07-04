@@ -20,7 +20,7 @@ struct RecapShareCard: View {
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
 
-            WorldGlobeView(markers: markers, lineColor: .white.opacity(0.18))
+            WanderWorldView(markers: markers)
                 .frame(height: 150)
                 .frame(maxWidth: .infinity)
 

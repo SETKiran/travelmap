@@ -46,10 +46,10 @@ struct GlobeMapView: View {
             LinearGradient(colors: [Color(red: 0.06, green: 0.12, blue: 0.16),
                                     Color(red: 0.10, green: 0.20, blue: 0.22)],
                            startPoint: .top, endPoint: .bottom)
-            WorldGlobeView(markers: locations.map {
+            WanderWorldView(markers: locations.map {
                 GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.status == .visited)
             })
-            .frame(width: 260, height: 260)
+            .frame(width: 300, height: 260)
             VStack {
                 Spacer()
                 Text("Add your Mapbox token in MapboxConfig.swift to enable the live globe.")

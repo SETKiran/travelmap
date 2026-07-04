@@ -56,7 +56,7 @@ struct PassportView: View {
             }
             .foregroundStyle(.white.opacity(0.9))
 
-            WorldGlobeView(markers: markers, lineColor: .white.opacity(0.16))
+            WanderWorldView(markers: markers)
                 .frame(height: 150)
                 .frame(maxWidth: .infinity)
 
