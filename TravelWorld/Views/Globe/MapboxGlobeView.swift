@@ -19,7 +19,7 @@ struct MapboxGlobeView: View {
     var body: some View {
         Map(viewport: $viewport) {
             ForEvery(locations, id: \.uuid) { location in
-                ViewAnnotation(coordinate: location.coordinate) {
+                MapViewAnnotation(coordinate: location.coordinate) {
                     LocationThumbnailMarker(
                         location: location,
                         size: 46,
