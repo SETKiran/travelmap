@@ -1,5 +1,8 @@
 import SwiftUI
-import MapboxMaps
+// In Mapbox 11.3 the SwiftUI API (Map, Viewport, ForEvery, ViewAnnotation, mapStyle)
+// is still experimental SPI. On Xcode 16 + Mapbox 11.5+ this becomes a plain
+// `import MapboxMaps`.
+@_spi(Experimental) import MapboxMaps
 
 /// The main-screen 3D globe, powered by Mapbox. The Standard style renders as a globe
 /// at low zoom; each saved place is a SwiftUI thumbnail marker via a Mapbox view annotation.
