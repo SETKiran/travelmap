@@ -2,7 +2,6 @@ import SwiftUI
 import SwiftData
 
 struct GlobeMapView: View {
-    @Environment(\.modelContext) private var context
     @Query(sort: \Location.savedDate, order: .reverse) private var locations: [Location]
     @State private var model = GlobeViewModel()
 

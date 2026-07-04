@@ -13,6 +13,26 @@ A minimalist, premium iOS travel bucket-list & memory app built with SwiftUI, Ma
 brew install xcodegen
 ```
 
+## Mapbox setup (required for the 3D globe)
+
+The main screen is a Mapbox globe. You need a free Mapbox account and **two** tokens:
+
+1. **Secret token** (to let SwiftPM download the SDK): create a token with the
+   `Downloads:Read` scope at https://account.mapbox.com/access-tokens, then add it to
+   `~/.netrc`:
+
+   ```
+   machine api.mapbox.com
+   login mapbox
+   password sk.YOUR_SECRET_DOWNLOAD_TOKEN
+   ```
+
+2. **Public token** (used at runtime): copy your default public token (`pk.…`) and paste
+   it into `TravelWorld/Services/MapboxConfig.swift`.
+
+If you skip this, the app still runs — the globe screen shows a fallback with your places
+plotted on the offline `Canvas` globe and a note to add the token.
+
 ## Getting started
 
 ```bash

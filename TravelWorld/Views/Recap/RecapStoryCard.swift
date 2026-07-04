@@ -12,8 +12,8 @@ struct RecapStoryCard: View {
         ZStack {
             background
             content
-                .padding(AppTheme.Spacing.xl)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .padding(AppTheme.Spacing.xl)
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 16)
         }
@@ -42,14 +42,16 @@ struct RecapStoryCard: View {
             Spacer()
             symbolView
             Text(card.headline)
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .font(.system(size: 38, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.6)
                 .fixedSize(horizontal: false, vertical: true)
             if let subtitle = card.subtitle {
                 Text(subtitle).font(.title3).foregroundStyle(.white.opacity(0.85))
             }
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var numberContent: some View {
@@ -57,26 +59,33 @@ struct RecapStoryCard: View {
             Spacer()
             symbolView
             Text("\(counter)")
-                .font(.system(size: 108, weight: .heavy, design: .rounded))
+                .font(.system(size: 104, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
                 .contentTransition(.numericText(value: Double(counter)))
             Text(card.headline)
                 .font(.title.weight(.semibold))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: false, vertical: true)
             if let subtitle = card.subtitle {
                 Text(subtitle).font(.body).foregroundStyle(.white.opacity(0.8))
             }
             if !card.imageURLs.isEmpty { photoStrip.padding(.top, AppTheme.Spacing.sm) }
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var photosContent: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             Spacer()
             Text(card.headline)
-                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: false, vertical: true)
             let cols = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
             LazyVGrid(columns: cols, spacing: 8) {
                 ForEach(Array(card.imageURLs.prefix(6).enumerated()), id: \.offset) { _, url in
@@ -95,13 +104,15 @@ struct RecapStoryCard: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 320)
             Text(card.headline)
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(.system(size: 32, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.6)
+                .fixedSize(horizontal: false, vertical: true)
             if let subtitle = card.subtitle {
                 Text(subtitle).font(.title3).foregroundStyle(.white.opacity(0.85))
             }
         }
-        .frame(maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 
     private var personalityContent: some View {
@@ -114,11 +125,14 @@ struct RecapStoryCard: View {
                     .foregroundStyle(.white.opacity(0.8))
             }
             Text(card.headline)
-                .font(.system(size: 46, weight: .heavy, design: .rounded))
+                .font(.system(size: 44, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white)
+                .minimumScaleFactor(0.5)
+                .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var photoStrip: some View {

@@ -26,8 +26,8 @@ struct RootView: View {
                 .tabItem { Label("Places", systemImage: "square.grid.2x2.fill") }
                 .tag(Tab.places)
 
-            RecapView()
-                .tabItem { Label("Recap", systemImage: "sparkles.rectangle.stack.fill") }
+            PassportView()
+                .tabItem { Label("Passport", systemImage: "book.closed.fill") }
                 .tag(Tab.recap)
 
             ProfileView()
