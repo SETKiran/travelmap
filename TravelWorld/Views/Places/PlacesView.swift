@@ -9,6 +9,11 @@ struct PlacesView: View {
 
     private var filtered: [Location] { model.filter(locations) }
 
+    private let columns = [
+        GridItem(.flexible(), spacing: AppTheme.Spacing.md),
+        GridItem(.flexible(), spacing: AppTheme.Spacing.md)
+    ]
+
     var body: some View {
         NavigationStack {
             Group {
@@ -19,15 +24,14 @@ struct PlacesView: View {
                         message: "The places you save will collect here, beautifully organized."
                     )
                 } else {
-                    list
+                    grid
                 }
             }
             .navigationTitle("Places")
             .searchable(text: $model.searchText, prompt: "Search places")
             .safeAreaInset(edge: .top, spacing: 0) { controls }
-            .sheet(item: $editing) { location in
-                EditLocationView(location: location)
-            }
+            .navigationDestination(for: Location.self) { LocationDetailView(location: $0) }
+            .sheet(item: $editing) { EditLocationView(location: $0) }
         }
     }
 
@@ -37,14 +41,13 @@ struct PlacesView: View {
                 ForEach(PlacesViewModel.Scope.allCases) { Text($0.rawValue).tag($0) }
             }
             .pickerStyle(.segmented)
+            .padding(.horizontal, AppTheme.Spacing.md)
 
             let tags = model.availableTags(locations)
             if !tags.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        filterChip(title: "All", isOn: model.selectedTag == nil) {
-                            model.selectedTag = nil
-                        }
+                        filterChip(title: "All", isOn: model.selectedTag == nil) { model.selectedTag = nil }
                         ForEach(tags) { tag in
                             filterChip(title: tag.label, symbol: tag.symbol, isOn: model.selectedTag == tag) {
                                 model.selectedTag = model.selectedTag == tag ? nil : tag
@@ -55,41 +58,45 @@ struct PlacesView: View {
                 }
             }
         }
-        .padding(.horizontal, model.availableTags(locations).isEmpty ? AppTheme.Spacing.md : 0)
         .padding(.top, AppTheme.Spacing.sm)
         .padding(.bottom, AppTheme.Spacing.sm)
         .background(.bar)
     }
 
-    private var list: some View {
-        List {
-            ForEach(filtered) { location in
-                NavigationLink {
-                    LocationDetailView(location: location)
-                } label: {
-                    PlaceRow(location: location)
-                }
-                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) { delete(location) } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    Button { editing = location } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    .tint(AppTheme.Colors.accent)
-                }
-                .swipeActions(edge: .leading) {
-                    if location.status == .wantToVisit {
-                        Button { markVisited(location) } label: {
-                            Label("Visited", systemImage: "checkmark.seal.fill")
+    private var grid: some View {
+        ScrollView {
+            if filtered.isEmpty {
+                ContentUnavailableView("No matches", systemImage: "magnifyingglass",
+                                       description: Text("Try a different filter or search."))
+                    .padding(.top, AppTheme.Spacing.xxl)
+            } else {
+                LazyVGrid(columns: columns, spacing: AppTheme.Spacing.md) {
+                    ForEach(filtered) { location in
+                        NavigationLink(value: location) {
+                            PlaceCard(location: location)
                         }
-                        .tint(AppTheme.Colors.visited)
+                        .buttonStyle(.plain)
+                        .contextMenu { menu(for: location) }
                     }
                 }
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.bottom, AppTheme.Spacing.xl)
             }
         }
-        .listStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func menu(for location: Location) -> some View {
+        if location.status == .wantToVisit {
+            Button { markVisited(location) } label: {
+                Label("Mark as visited", systemImage: "checkmark.seal.fill")
+            }
+        }
+        Button { editing = location } label: { Label("Edit", systemImage: "pencil") }
+        Button(role: .destructive) { delete(location) } label: {
+            Label("Delete", systemImage: "trash")
+        }
     }
 
     private func filterChip(title: String, symbol: String? = nil, isOn: Bool, action: @escaping () -> Void) -> some View {
@@ -113,7 +120,7 @@ struct PlacesView: View {
 
     private func delete(_ location: Location) {
         location.memoryImageNames.forEach(MemoryImageStore.delete)
-        context.delete(location)
+        withAnimation { context.delete(location) }
         try? context.save()
         Haptics.light()
     }

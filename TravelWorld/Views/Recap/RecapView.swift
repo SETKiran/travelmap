@@ -16,8 +16,12 @@ struct RecapView: View {
                 .navigationBarTitleDisplayMode(.inline)
         }
         .fullScreenCover(isPresented: $model.isPlaying) {
-            RecapPlayer(model: model, year: year, stats: stats)
+            RecapPlayer(model: model, year: year, stats: stats, markers: markers)
         }
+    }
+
+    private var markers: [GlobeMarker] {
+        locations.map { GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.status == .visited) }
     }
 
     private var cover: some View {
@@ -25,6 +29,11 @@ struct RecapView: View {
             LinearGradient(colors: [AppTheme.Colors.wantToVisit.opacity(0.9), AppTheme.Colors.visited.opacity(0.9)],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
+
+            WorldGlobeView(markers: markers, lineColor: .white.opacity(0.12), rimColor: .white.opacity(0.18))
+                .frame(width: 460, height: 460)
+                .opacity(0.35)
+                .offset(y: 40)
 
             VStack(spacing: AppTheme.Spacing.lg) {
                 Spacer()
@@ -64,12 +73,15 @@ struct RecapView: View {
 }
 
 /// Story-style player: tap right to advance, left to go back, with progress bars.
-@MainActor
 private struct RecapPlayer: View {
     @Bindable var model: RecapViewModel
     let year: Int
     let stats: UserStats
+    let markers: [GlobeMarker]
     @Environment(\.dismiss) private var dismiss
+
+    /// The shareable summary, rendered once when the player appears.
+    @State private var shareImage = Image(systemName: "globe")
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -86,6 +98,7 @@ private struct RecapPlayer: View {
             tapZones
             topBar
         }
+        .task { await renderShareImage() }
     }
 
     private var topBar: some View {
@@ -126,7 +139,7 @@ private struct RecapPlayer: View {
     private var finale: some View {
         VStack(spacing: AppTheme.Spacing.lg) {
             Spacer()
-            RecapShareCard(year: year, stats: stats)
+            RecapShareCard(year: year, stats: stats, markers: markers)
                 .appShadow()
             ShareLink(
                 item: shareImage,
@@ -142,13 +155,13 @@ private struct RecapPlayer: View {
         }
     }
 
-    @MainActor private var shareImage: Image {
-        let renderer = ImageRenderer(content: RecapShareCard(year: year, stats: stats))
+    @MainActor
+    private func renderShareImage() async {
+        let renderer = ImageRenderer(content: RecapShareCard(year: year, stats: stats, markers: markers))
         renderer.scale = 3
         if let uiImage = renderer.uiImage {
-            return Image(uiImage: uiImage)
+            shareImage = Image(uiImage: uiImage)
         }
-        return Image(systemName: "globe")
     }
 }
 

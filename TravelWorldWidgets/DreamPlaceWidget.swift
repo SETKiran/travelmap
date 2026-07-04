@@ -11,32 +11,46 @@ struct DreamPlaceWidget: Widget {
         }
         .configurationDisplayName("Dream Place")
         .description("A place you're still dreaming of.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
 struct DreamPlaceWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: WanderEntry
 
     var body: some View {
         let place = entry.snapshot.dream(offset: entry.rotation)
-        VStack(alignment: .leading) {
-            Image(systemName: "sparkles")
-                .font(.title3)
-                .foregroundStyle(.white.opacity(0.9))
-            Spacer()
-            if let place {
-                Text("Still dreaming of")
-                    .font(.caption).foregroundStyle(.white.opacity(0.8))
-                Text(place.name)
-                    .font(.title2.weight(.bold)).foregroundStyle(.white)
-                Text(place.country)
-                    .font(.caption).foregroundStyle(.white.opacity(0.85))
-            } else {
-                Text("Save your first dream place")
-                    .font(.headline).foregroundStyle(.white)
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 5) {
+                    Image(systemName: "sparkles")
+                    Text("DREAM").font(.caption2.weight(.bold)).tracking(1.5)
+                }
+                .foregroundStyle(.white.opacity(0.85))
+                Spacer()
+                if let place {
+                    Text("Still dreaming of")
+                        .font(.caption).foregroundStyle(.white.opacity(0.8))
+                    Text(place.name)
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .minimumScaleFactor(0.7).lineLimit(2)
+                    HStack(spacing: 5) {
+                        Text(CountryFlag.emoji(for: place.country))
+                        Text(place.country).font(.caption).foregroundStyle(.white.opacity(0.85))
+                    }
+                } else {
+                    Text("Save your first dream place")
+                        .font(.headline).foregroundStyle(.white)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+            if family != .systemSmall, let place {
+                WorldGlobeView(markers: [GlobeMarker(latitude: place.latitude, longitude: place.longitude, isVisited: false)])
+                    .frame(width: 110, height: 110)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

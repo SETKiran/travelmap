@@ -2,12 +2,18 @@ import Foundation
 
 /// One full-screen story card in the yearly recap.
 struct RecapCard: Identifiable {
+    enum Kind { case intro, number, photos, globe, statement, personality }
+
     let id = UUID()
+    let kind: Kind
     let headline: String
-    let subtitle: String?
-    let symbol: String?
-    let backgroundImageURL: String?
-    let gradientSeed: String
+    var subtitle: String? = nil
+    var symbol: String? = nil
+    var backgroundImageURL: String? = nil
+    var gradientSeed: String
+    var bigNumber: Int? = nil
+    var imageURLs: [String] = []
+    var markers: [GlobeMarker] = []
 }
 
 /// The complete recap: an ordered set of story cards plus a shareable summary.
@@ -32,68 +38,109 @@ struct LocalRecapGenerator: RecapGeneratorService {
             return cal.component(.year, from: d) == year
         }
         let stats = UserStats(locations: locations)
+        func thumbs(_ list: [Location]) -> [String] { list.compactMap(\.imageURL) }
+        let markers = locations.map {
+            GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.status == .visited)
+        }
 
         var cards: [RecapCard] = []
 
         cards.append(RecapCard(
+            kind: .intro,
             headline: "This year,\nyour world got bigger.",
             subtitle: "Let's look back.",
             symbol: "globe.europe.africa.fill",
-            backgroundImageURL: nil, gradientSeed: "intro-\(year)"
+            gradientSeed: "intro-\(year)"
         ))
 
         cards.append(RecapCard(
-            headline: "You saved\n\(savedThisYear.count) dream places.",
-            subtitle: savedThisYear.count > 0 ? "Places that caught your eye." : "A fresh start.",
+            kind: .number,
+            headline: "dream places saved",
+            subtitle: savedThisYear.isEmpty ? "A fresh start." : "Places that caught your eye.",
             symbol: "sparkles",
-            backgroundImageURL: savedThisYear.first?.imageURL, gradientSeed: "saved"
+            gradientSeed: "saved",
+            bigNumber: savedThisYear.count,
+            imageURLs: Array(thumbs(savedThisYear).prefix(4))
         ))
 
         cards.append(RecapCard(
-            headline: "You visited\n\(visitedThisYear.count) places.",
+            kind: .number,
+            headline: "places visited",
             subtitle: "Memories made.",
             symbol: "checkmark.seal.fill",
-            backgroundImageURL: visitedThisYear.first?.imageURL, gradientSeed: "visited"
+            gradientSeed: "visited",
+            bigNumber: visitedThisYear.count,
+            imageURLs: Array(thumbs(visitedThisYear).prefix(4))
         ))
+
+        if !markers.isEmpty {
+            cards.append(RecapCard(
+                kind: .globe,
+                headline: "You've touched\n\(stats.continentsVisited) continents.",
+                subtitle: "\(stats.countriesVisited) countries and counting.",
+                gradientSeed: "globe",
+                markers: markers
+            ))
+        }
 
         if let topCountry = mostVisitedCountry(visitedThisYear) {
             cards.append(RecapCard(
+                kind: .statement,
                 headline: "Your most visited\ncountry was \(topCountry).",
-                subtitle: nil, symbol: "mappin.and.ellipse",
+                symbol: "mappin.and.ellipse",
                 backgroundImageURL: visitedThisYear.first(where: { $0.country == topCountry })?.imageURL,
                 gradientSeed: topCountry
+            ))
+        }
+
+        let photoStrip = thumbs(visitedThisYear.isEmpty ? savedThisYear : visitedThisYear)
+        if photoStrip.count >= 3 {
+            cards.append(RecapCard(
+                kind: .photos,
+                headline: "A year in pictures.",
+                gradientSeed: "photos",
+                imageURLs: Array(photoStrip.prefix(6))
             ))
         }
 
         if !stats.topTags.isEmpty {
             let list = stats.topTags.map(\.label.localizedLowercase).joined(separator: ", ")
             cards.append(RecapCard(
+                kind: .statement,
                 headline: "Your year was mostly:\n\(list).",
-                subtitle: nil, symbol: stats.topTags.first?.symbol ?? "tag",
-                backgroundImageURL: nil, gradientSeed: "tags-\(list)"
+                symbol: stats.topTags.first?.symbol ?? "tag",
+                gradientSeed: "tags-\(list)"
             ))
         }
 
         if let furthest = furthestSaved(savedThisYear) {
             cards.append(RecapCard(
+                kind: .statement,
                 headline: "Your furthest dream\nwas \(furthest.name).",
-                subtitle: furthest.country, symbol: "airplane",
-                backgroundImageURL: furthest.imageURL, gradientSeed: "furthest-\(furthest.name)"
+                subtitle: furthest.country,
+                symbol: "airplane",
+                backgroundImageURL: furthest.imageURL,
+                gradientSeed: "furthest-\(furthest.name)"
             ))
         }
 
         if let topMemory = visitedThisYear.max(by: { ($0.personalRating ?? 0) < ($1.personalRating ?? 0) }) {
             cards.append(RecapCard(
+                kind: .statement,
                 headline: "Your top memory\nwas \(topMemory.name).",
-                subtitle: topMemory.country, symbol: "heart.fill",
-                backgroundImageURL: topMemory.imageURL, gradientSeed: "memory-\(topMemory.name)"
+                subtitle: topMemory.country,
+                symbol: "heart.fill",
+                backgroundImageURL: topMemory.imageURL,
+                gradientSeed: "memory-\(topMemory.name)"
             ))
         }
 
         cards.append(RecapCard(
-            headline: "Your \(year) travel personality:\n\(personality(for: stats)).",
-            subtitle: nil, symbol: "person.crop.circle.badge.checkmark",
-            backgroundImageURL: nil, gradientSeed: "personality"
+            kind: .personality,
+            headline: personality(for: stats),
+            subtitle: "Your \(year) travel personality",
+            symbol: "person.crop.circle.badge.checkmark",
+            gradientSeed: "personality"
         ))
 
         return Recap(year: year, cards: cards, stats: stats)
@@ -105,7 +152,6 @@ struct LocalRecapGenerator: RecapGeneratorService {
     }
 
     private func furthestSaved(_ locations: [Location]) -> Location? {
-        // Furthest from a rough home anchor (Amsterdam) — a stand-in until we know the user's home.
         let home = (lat: 52.3676, lon: 4.9041)
         return locations.max {
             distance(home.lat, home.lon, $0.latitude, $0.longitude) <

@@ -32,7 +32,10 @@ Then in Xcode:
 The widget extension shares data with the app through the App Group
 `group.com.wander.travelworld`. The app writes a small JSON snapshot on every change;
 widgets read it — no shared SwiftData store required. Add a Wander widget from the
-Home Screen gallery to see **Dream Place**, **Memory** and **Stats** widgets.
+Home Screen gallery to see the **Your World** globe widget (an orthographic globe
+rendered from your coordinates, auto-centered on where you've been), plus **Dream
+Place** and **Memory** widgets. All widgets render offline via a shared `Canvas`
+globe (`Shared/WorldGlobeView.swift`) — no map tiles or network images.
 
 ## Architecture
 

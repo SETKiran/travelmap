@@ -56,7 +56,8 @@ final class AppState {
     func refreshWidgetSnapshot(with locations: [Location]) {
         func project(_ l: Location) -> WidgetSnapshot.Place {
             .init(id: l.uuid, name: l.name, country: l.country,
-                  imageURL: l.imageURL, isVisited: l.status == .visited)
+                  imageURL: l.imageURL, isVisited: l.status == .visited,
+                  latitude: l.latitude, longitude: l.longitude)
         }
         let stats = UserStats(locations: locations)
         let snapshot = WidgetSnapshot(

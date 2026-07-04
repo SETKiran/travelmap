@@ -4,9 +4,10 @@ import SwiftUI
 struct RecapShareCard: View {
     let year: Int
     let stats: UserStats
+    var markers: [GlobeMarker] = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             HStack {
                 Image(systemName: "globe.europe.africa.fill")
                 Text("Wander").font(.headline.weight(.bold))
@@ -16,14 +17,17 @@ struct RecapShareCard: View {
             .foregroundStyle(.white)
 
             Text("My Year\nin Places")
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
 
-            VStack(spacing: AppTheme.Spacing.md) {
-                statRow("Countries visited", stats.countriesVisited)
-                statRow("Places visited", stats.placesVisited)
-                statRow("Dreams saved", stats.placesSaved)
-                statRow("Continents", stats.continentsVisited)
+            WorldGlobeView(markers: markers, lineColor: .white.opacity(0.18))
+                .frame(height: 150)
+                .frame(maxWidth: .infinity)
+
+            HStack(spacing: AppTheme.Spacing.md) {
+                stat(stats.countriesVisited, "countries")
+                stat(stats.placesVisited, "visited")
+                stat(stats.placesSaved, "saved")
             }
 
             if !stats.topTags.isEmpty {
@@ -33,7 +37,7 @@ struct RecapShareCard: View {
             }
         }
         .padding(AppTheme.Spacing.xl)
-        .frame(width: 340, height: 460, alignment: .topLeading)
+        .frame(width: 340, height: 480, alignment: .topLeading)
         .background(
             LinearGradient(
                 colors: [AppTheme.Colors.wantToVisit, AppTheme.Colors.visited],
@@ -43,19 +47,25 @@ struct RecapShareCard: View {
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous))
     }
 
-    private func statRow(_ label: String, _ value: Int) -> some View {
-        HStack(alignment: .firstTextBaseline) {
+    private func stat(_ value: Int, _ label: String) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text("\(value)")
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
             Text(label)
-                .font(.callout)
+                .font(.caption)
                 .foregroundStyle(.white.opacity(0.85))
-            Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
-    RecapShareCard(year: 2026, stats: UserStats(locations: SampleData.makeLocations()))
+    RecapShareCard(
+        year: 2026,
+        stats: UserStats(locations: SampleData.makeLocations()),
+        markers: SampleData.makeLocations().map {
+            GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.status == .visited)
+        }
+    )
 }

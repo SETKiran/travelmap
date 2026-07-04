@@ -9,6 +9,8 @@ struct WidgetSnapshot: Codable {
         let country: String
         let imageURL: String?
         let isVisited: Bool
+        var latitude: Double = 0
+        var longitude: Double = 0
     }
 
     var placesSaved: Int
@@ -17,15 +19,28 @@ struct WidgetSnapshot: Codable {
     var dreamPlaces: [Place]
     var visitedPlaces: [Place]
 
+    /// All places as globe markers for the world widget / recap globe.
+    var globeMarkers: [GlobeMarker] {
+        (visitedPlaces + dreamPlaces).map {
+            GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.isVisited)
+        }
+    }
+
     static let placeholder = WidgetSnapshot(
         placesSaved: 42, placesVisited: 12, countriesVisited: 9,
         dreamPlaces: [
             Place(id: UUID(), name: "Kyoto", country: "Japan",
-                  imageURL: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e", isVisited: false)
+                  imageURL: nil, isVisited: false, latitude: 35.01, longitude: 135.77),
+            Place(id: UUID(), name: "Bali", country: "Indonesia",
+                  imageURL: nil, isVisited: false, latitude: -8.5, longitude: 115.26)
         ],
         visitedPlaces: [
             Place(id: UUID(), name: "Reykjavik", country: "Iceland",
-                  imageURL: "https://images.unsplash.com/photo-1504829857797-ddff29c27927", isVisited: true)
+                  imageURL: nil, isVisited: true, latitude: 64.14, longitude: -21.94),
+            Place(id: UUID(), name: "Rome", country: "Italy",
+                  imageURL: nil, isVisited: true, latitude: 41.9, longitude: 12.5),
+            Place(id: UUID(), name: "Santorini", country: "Greece",
+                  imageURL: nil, isVisited: true, latitude: 36.39, longitude: 25.46)
         ]
     )
 }

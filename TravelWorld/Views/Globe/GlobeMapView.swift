@@ -49,27 +49,29 @@ struct GlobeMapView: View {
     // MARK: Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(model.greeting())
-                .font(.subheadline)
-                .foregroundStyle(AppTheme.Colors.secondaryText)
+        HStack(spacing: AppTheme.Spacing.sm) {
             Text("Your World")
-                .font(.largeTitle.weight(.bold))
+                .font(.title2.weight(.bold))
+            Spacer(minLength: 0)
             if !locations.isEmpty {
-                Text(model.statLine(for: stats))
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(AppTheme.Colors.secondaryText)
+                HStack(spacing: 12) {
+                    statChip(symbol: "sparkles", value: stats.placesSaved, tint: AppTheme.Colors.wantToVisit)
+                    statChip(symbol: "checkmark.seal.fill", value: stats.placesVisited, tint: AppTheme.Colors.visited)
+                }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.lg, style: .continuous)
-                .fill(.regularMaterial)
-                .appShadow()
-        )
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, 10)
+        .background(Capsule().fill(.regularMaterial).appShadow())
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.top, AppTheme.Spacing.sm)
+    }
+
+    private func statChip(symbol: String, value: Int, tint: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: symbol).font(.caption).foregroundStyle(tint)
+            Text("\(value)").font(.subheadline.weight(.semibold))
+        }
     }
 
     // MARK: Add button
