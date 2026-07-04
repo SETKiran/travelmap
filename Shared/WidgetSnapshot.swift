@@ -26,6 +26,10 @@ struct WidgetSnapshot: Codable {
         }
     }
 
+    static let empty = WidgetSnapshot(
+        placesSaved: 0, placesVisited: 0, countriesVisited: 0, dreamPlaces: [], visitedPlaces: []
+    )
+
     static let placeholder = WidgetSnapshot(
         placesSaved: 42, placesVisited: 12, countriesVisited: 9,
         dreamPlaces: [
@@ -43,6 +47,24 @@ struct WidgetSnapshot: Codable {
                   imageURL: nil, isVisited: true, latitude: 36.39, longitude: 25.46)
         ]
     )
+}
+
+extension WidgetSnapshot.Place {
+    private enum CodingKeys: String, CodingKey {
+        case id, name, country, imageURL, isVisited, latitude, longitude
+    }
+
+    /// Resilient decoding — tolerates older snapshots written before coordinates existed.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        country = try c.decode(String.self, forKey: .country)
+        imageURL = try c.decodeIfPresent(String.self, forKey: .imageURL)
+        isVisited = try c.decode(Bool.self, forKey: .isVisited)
+        latitude = try c.decodeIfPresent(Double.self, forKey: .latitude) ?? 0
+        longitude = try c.decodeIfPresent(Double.self, forKey: .longitude) ?? 0
+    }
 }
 
 enum WidgetSnapshotStore {

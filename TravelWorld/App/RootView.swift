@@ -4,6 +4,7 @@ import SwiftData
 struct RootView: View {
     @Environment(\.modelContext) private var context
     @Environment(AppState.self) private var appState
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var locations: [Location]
 
     @State private var selection: Tab = .globe
@@ -39,6 +40,11 @@ struct RootView: View {
         }
         .onChange(of: snapshotSignature) {
             appState.refreshWidgetSnapshot(with: locations)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active || phase == .background {
+                appState.refreshWidgetSnapshot(with: locations)
+            }
         }
         .onAppear {
             appState.refreshWidgetSnapshot(with: locations)

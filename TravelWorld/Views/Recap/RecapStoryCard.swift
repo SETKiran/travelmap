@@ -13,7 +13,11 @@ struct RecapStoryCard: View {
             background
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                .padding(AppTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
+                // Clear the player's progress bars + close button at the top, and the
+                // share hint at the bottom, so no slide's content collides with them.
+                .padding(.top, 72)
+                .padding(.bottom, AppTheme.Spacing.xl)
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 16)
         }
@@ -100,9 +104,10 @@ struct RecapStoryCard: View {
 
     private var globeContent: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            Spacer(minLength: 0)
             WorldGlobeView(markers: card.markers, lineColor: .white.opacity(0.18))
                 .frame(maxWidth: .infinity)
-                .frame(height: 320)
+                .frame(height: 280)
             Text(card.headline)
                 .font(.system(size: 32, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
@@ -111,6 +116,7 @@ struct RecapStoryCard: View {
             if let subtitle = card.subtitle {
                 Text(subtitle).font(.title3).foregroundStyle(.white.opacity(0.85))
             }
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }

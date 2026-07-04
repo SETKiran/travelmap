@@ -18,7 +18,9 @@ struct WanderProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (WanderEntry) -> Void) {
-        completion(WanderEntry(date: Date(), snapshot: current, rotation: 0, spin: 0))
+        // The widget gallery shows sample data; a placed widget shows the real snapshot.
+        let snapshot = context.isPreview ? .placeholder : (WidgetSnapshotStore.read() ?? .empty)
+        completion(WanderEntry(date: Date(), snapshot: snapshot, rotation: 0, spin: 0))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<WanderEntry>) -> Void) {
@@ -37,7 +39,8 @@ struct WanderProvider: TimelineProvider {
         completion(Timeline(entries: entries, policy: .atEnd))
     }
 
+    /// The real snapshot the app wrote, or an honest empty state — never fake sample data.
     private var current: WidgetSnapshot {
-        WidgetSnapshotStore.read() ?? .placeholder
+        WidgetSnapshotStore.read() ?? .empty
     }
 }
