@@ -25,7 +25,10 @@ settings:
 packages:
   MapboxMaps:
     url: https://github.com/mapbox/mapbox-maps-ios.git
-    from: "11.5.0"
+    # 11.3.0 is the last release targeting Xcode 15.2 / Swift 5.9. Later versions
+    # (11.5+) use `internal import`, which needs Xcode 16 / Swift 6. Bump this once
+    # you move to Xcode 16.
+    exactVersion: "11.3.0"
 
 targets:
   TravelWorld:

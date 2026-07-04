@@ -28,11 +28,5 @@ struct MapboxGlobeView: View {
             }
         }
         .mapStyle(.standard)
-        .ornamentOptions(OrnamentOptions(
-            scaleBar: ScaleBarViewOptions(visibility: .hidden),
-            compass: CompassViewOptions(visibility: .hidden),
-            logo: LogoViewOptions(margins: CGPoint(x: 8, y: 8)),
-            attributionButton: AttributionButtonOptions(margins: CGPoint(x: 8, y: 8))
-        ))
     }
 }
