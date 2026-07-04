@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import MapKit
 
 struct GlobeMapView: View {
     @Environment(\.modelContext) private var context
@@ -31,19 +30,37 @@ struct GlobeMapView: View {
 
     // MARK: Map
 
-    private var mapLayer: some View {
-        Map(position: $model.cameraPosition) {
-            ForEach(locations) { location in
-                Annotation("", coordinate: location.coordinate) {
-                    LocationThumbnailMarker(
-                        location: location,
-                        isSelected: model.selectedLocation?.uuid == location.uuid
-                    )
-                    .onTapGesture { model.select(location) }
-                }
+    @ViewBuilder private var mapLayer: some View {
+        if MapboxConfig.isConfigured {
+            MapboxGlobeView(
+                locations: locations,
+                selectedID: model.selectedLocation?.uuid,
+                onSelect: { model.select($0) }
+            )
+        } else {
+            mapboxSetupNotice
+        }
+    }
+
+    private var mapboxSetupNotice: some View {
+        ZStack {
+            LinearGradient(colors: [Color(red: 0.06, green: 0.12, blue: 0.16),
+                                    Color(red: 0.10, green: 0.20, blue: 0.22)],
+                           startPoint: .top, endPoint: .bottom)
+            WorldGlobeView(markers: locations.map {
+                GlobeMarker(latitude: $0.latitude, longitude: $0.longitude, isVisited: $0.status == .visited)
+            })
+            .frame(width: 260, height: 260)
+            VStack {
+                Spacer()
+                Text("Add your Mapbox token in MapboxConfig.swift to enable the live globe.")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .padding(.bottom, 80)
             }
         }
-        .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
     }
 
     // MARK: Header

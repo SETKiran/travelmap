@@ -13,6 +13,8 @@ struct GlobeMarker: Hashable {
 /// so the user's world is always facing the viewer.
 struct WorldGlobeView: View {
     var markers: [GlobeMarker]
+    /// Degrees of longitude to rotate the globe by — used to gently spin it over time.
+    var spinLongitude: Double = 0
     var accent: Color = Color(red: 0.20, green: 0.62, blue: 0.53)
     var oceanTint: Color = Color(red: 0.20, green: 0.62, blue: 0.53)
     var lineColor: Color = .white.opacity(0.16)
@@ -21,12 +23,12 @@ struct WorldGlobeView: View {
     private var focus: (lat: Double, lon: Double) {
         let visited = markers.filter(\.isVisited)
         let pts = visited.isEmpty ? markers : visited
-        guard !pts.isEmpty else { return (20, 10) }
+        guard !pts.isEmpty else { return (20, 10 + spinLongitude) }
         let lat = pts.map(\.latitude).reduce(0, +) / Double(pts.count)
         let sinL = pts.map { sin($0.longitude * .pi / 180) }.reduce(0, +)
         let cosL = pts.map { cos($0.longitude * .pi / 180) }.reduce(0, +)
         let lon = atan2(sinL, cosL) * 180 / .pi
-        return (max(-55, min(55, lat)), lon)
+        return (max(-55, min(55, lat)), lon + spinLongitude)
     }
 
     var body: some View {

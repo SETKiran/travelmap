@@ -19,6 +19,14 @@ settings:
 # The App Group lets the main app share a small data snapshot with the widgets.
 # Replace "group.com.wander.travelworld" with your own if you change the bundle prefix.
 
+# Mapbox powers the 3D globe on the main screen.
+# Downloading the SDK requires a secret token with the Downloads:Read scope in ~/.netrc
+# (see README). The public token goes in MapboxConfig.swift.
+packages:
+  MapboxMaps:
+    url: https://github.com/mapbox/mapbox-maps-ios.git
+    from: "11.5.0"
+
 targets:
   TravelWorld:
     type: application
@@ -41,6 +49,7 @@ targets:
           - group.com.wander.travelworld
     dependencies:
       - target: TravelWorldWidgets
+      - package: MapboxMaps
 
   TravelWorldWidgets:
     type: app-extension

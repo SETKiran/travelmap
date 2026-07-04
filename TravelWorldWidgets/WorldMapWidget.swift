@@ -30,7 +30,7 @@ struct WorldMapWidgetView: View {
     var entry: WanderEntry
 
     private var globe: some View {
-        WorldGlobeView(markers: entry.snapshot.globeMarkers)
+        WorldGlobeView(markers: entry.snapshot.globeMarkers, spinLongitude: entry.spin)
     }
 
     var body: some View {
