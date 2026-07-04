@@ -1,0 +1,65 @@
+name: TravelWorld
+
+options:
+  bundleIdPrefix: com.wander
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    GENERATE_INFOPLIST_FILE: YES
+
+# The App Group lets the main app share a small data snapshot with the widgets.
+# Replace "group.com.wander.travelworld" with your own if you change the bundle prefix.
+
+targets:
+  TravelWorld:
+    type: application
+    platform: iOS
+    sources:
+      - path: TravelWorld
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wander.travelworld
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Wander
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Your location is only used to center the map — nothing is tracked or stored."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Choose photos to remember the places you have visited."
+    entitlements:
+      path: TravelWorld/TravelWorld.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.wander.travelworld
+    dependencies:
+      - target: TravelWorldWidgets
+
+  TravelWorldWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: TravelWorldWidgets
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wander.travelworld.widgets
+        GENERATE_INFOPLIST_FILE: NO
+    info:
+      path: TravelWorldWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Wander
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: TravelWorldWidgets/TravelWorldWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.wander.travelworld
