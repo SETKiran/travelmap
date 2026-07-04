@@ -64,6 +64,7 @@ struct RecapView: View {
 }
 
 /// Story-style player: tap right to advance, left to go back, with progress bars.
+@MainActor
 private struct RecapPlayer: View {
     @Bindable var model: RecapViewModel
     let year: Int
